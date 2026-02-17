@@ -263,11 +263,6 @@
             <input id="contrast" type="range" min="0" max="40" value="18" />
             <div class="hint">대비를 올리면 선이 또렷해져요.</div>
           </div>
-          <div style="flex:1;min-width:220px">
-            <label for="edge">엣지 임계값 <span id="edgeVal" style="color:var(--brand);font-weight:900">42</span></label>
-            <input id="edge" type="range" min="5" max="120" value="42" />
-            <div class="hint">값을 낮추면 선이 많아지고, 높이면 핵심 윤곽 위주로 정리돼요.</div>
-          </div>
         </div>
 
         <div class="row">
@@ -404,12 +399,9 @@
     const contrastEl = $("#contrast");
     const strengthVal = $("#strengthVal");
     const contrastVal = $("#contrastVal");
-    const edgeEl = document.querySelector("#edge");
-    const edgeVal = document.querySelector("#edgeVal");
 
     strengthEl.addEventListener("input", () => strengthVal.textContent = strengthEl.value);
     contrastEl.addEventListener("input", () => contrastVal.textContent = contrastEl.value);
-    if (edgeEl && edgeVal) edgeEl.addEventListener("input", () => edgeVal.textContent = edgeEl.value);
 
     let loadedImage = null;
 
@@ -468,7 +460,8 @@
     async function renderSketch(img, canvas, opts){
       const strength = Number(opts?.strength ?? 70);
       const contrast = Number(opts?.contrast ?? 18);
-      const edgeTh = Number(edgeEl?.value ?? 42);
+      const threshold = Math.round(20 + (contrast / 40) * 100);
+      const thickness = strength > 85 ? 3 : strength > 65 ? 2 : strength > 40 ? 1 : 0;
 
       const maxW = 1400;
       const scale = Math.min(1, maxW / img.naturalWidth);
@@ -483,16 +476,16 @@
 
       const src = ctx.getImageData(0,0,w,h);
       const gray = toGray1ch(src.data, w, h);
+      const smooth = boxBlur1ch(gray, w, h, 1);
+      let edge = sobelMag1ch(smooth, w, h);
+      edge = normalize1ch(edge);
+      let bw = thresholdToBW1ch(edge, threshold);
 
-      const blurR = Math.max(1, Math.min(2, Math.round(strength / 60)));
-      const smooth = boxBlur1ch(gray, w, h, blurR);
+      for(let i=0;i<thickness;i++){
+        bw = dilateBlack1ch(bw, w, h);
+      }
 
-      let edges = sobelMag(smooth, w, h);
-      edges = contrast1ch(edges, w, h, contrast * 1.2);
-      let bw = thresholdEdges(edges, w, h, edgeTh);
-
-      const dilateIter = strength > 75 ? 2 : 1;
-      for(let i=0;i<dilateIter;i++) bw = dilate1ch(bw, w, h);
+      bw = addPaperNoiseBW1ch(bw, 2);
 
       const out = new ImageData(w,h);
       const d = out.data;
@@ -501,8 +494,6 @@
         d[i]=d[i+1]=d[i+2]=v;
         d[i+3]=255;
       }
-
-      addPaperNoiseInPlace(out.data, 3);
       ctx.putImageData(out, 0, 0);
     }
 
@@ -553,62 +544,67 @@
       return out;
     }
 
-    function sobelMag(src, w, h){
-      const out = new Uint8ClampedArray(w*h);
+    function sobelMag1ch(src, w, h){
+      const out = new Uint16Array(w*h);
       for(let y=1;y<h-1;y++){
         for(let x=1;x<w-1;x++){
           const i = y*w+x;
           const a = src[i-w-1], b=src[i-w], c=src[i-w+1];
-          const d = src[i-1], f=src[i+1];
+          const d = src[i-1],           f=src[i+1];
           const g = src[i+w-1], h1=src[i+w], k=src[i+w+1];
 
           const gx = (-a + c) + (-2*d + 2*f) + (-g + k);
           const gy = (-a -2*b - c) + (g + 2*h1 + k);
-          const mag = Math.min(255, (Math.abs(gx) + Math.abs(gy)) | 0);
-          out[i]=mag;
+          out[i] = (Math.abs(gx) + Math.abs(gy)) | 0;
         }
       }
       return out;
     }
 
-    function contrast1ch(src, w, h, c){
-      const out = new Uint8ClampedArray(w*h);
-      const cc = Math.max(0, Math.min(80, c));
-      const factor = (259 * (cc + 255)) / (255 * (259 - cc));
-      for(let i=0;i<src.length;i++){
-        out[i] = clamp((factor*(src[i]-128)+128)|0, 0, 255);
+    function normalize1ch(src16){
+      let max = 0;
+      for(let i=0;i<src16.length;i++) if(src16[i] > max) max = src16[i];
+      const out = new Uint8ClampedArray(src16.length);
+      if(max === 0) return out;
+      const s = 255 / max;
+      for(let i=0;i<src16.length;i++){
+        out[i] = clamp((src16[i] * s) | 0, 0, 255);
       }
       return out;
     }
 
-    function thresholdEdges(edges, w, h, th){
-      const out = new Uint8ClampedArray(w*h);
-      for(let i=0;i<edges.length;i++){
-        out[i] = edges[i] >= th ? 0 : 255;
+    function thresholdToBW1ch(edge, threshold){
+      const out = new Uint8ClampedArray(edge.length);
+      for(let i=0;i<edge.length;i++){
+        out[i] = edge[i] >= threshold ? 0 : 255;
       }
       return out;
     }
 
-    function dilate1ch(bw, w, h){
-      const out = new Uint8ClampedArray(w*h);
-      out.set(bw);
+    function dilateBlack1ch(bw, w, h){
+      const out = new Uint8ClampedArray(bw);
       for(let y=1;y<h-1;y++){
         for(let x=1;x<w-1;x++){
           const i=y*w+x;
           if(bw[i]===0){
             out[i-1]=0; out[i+1]=0; out[i-w]=0; out[i+w]=0;
+            out[i-w-1]=0; out[i-w+1]=0; out[i+w-1]=0; out[i+w+1]=0;
           }
         }
       }
       return out;
     }
 
-    function addPaperNoiseInPlace(rgba, amount){
-      for(let i=0;i<rgba.length;i+=4){
-        const n = (Math.random()*2-1)*amount;
-        const v = clamp((rgba[i] + n)|0, 0, 255);
-        rgba[i]=rgba[i+1]=rgba[i+2]=v;
+    function addPaperNoiseBW1ch(bw, amount){
+      if(!amount) return bw;
+      const out = new Uint8ClampedArray(bw);
+      for(let i=0;i<out.length;i++){
+        if(out[i] === 255){
+          const n = (Math.random()*2-1)*amount;
+          out[i] = clamp((255 + n) | 0, 235, 255);
+        }
       }
+      return out;
     }
 
     function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
