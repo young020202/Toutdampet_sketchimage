@@ -1,96 +1,611 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>뚜담펫 ToutdamPET | 반려동물 옷 사이즈 측정</title>
-  <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-  <link href="/style.css" rel="stylesheet" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>뚜담펫 | 우리 아이 연필 스케치 만들기</title>
+  <meta name="description" content="뚜담펫 toutdampet - 반려동물 라이프스타일 브랜드. 우리 아이 사진을 연필 스케치로 바꿔보세요!" />
+
+  <style>
+    :root{
+      --bg1:#ffe9f1;
+      --bg2:#fff7fb;
+      --card:#ffffffcc;
+      --stroke:#f7c1d4;
+      --stroke2:#f4a8c5;
+      --text:#2b2b2b;
+      --muted:#6b6b6b;
+      --brand:#e84b87;
+      --brand2:#ff6aa2;
+      --shadow: 0 14px 40px rgba(232,75,135,.14);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, #ffd6e6 0%, transparent 60%),
+        radial-gradient(900px 500px at 90% 40%, #ffdff0 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      padding:28px 16px 60px;
+    }
+    .wrap{max-width:980px;margin:0 auto}
+    .hero{
+      background:var(--card);
+      border:1px solid rgba(244,168,197,.55);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:22px 22px 18px;
+      backdrop-filter: blur(8px);
+    }
+    .brandline{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+    .pill{
+      font-weight:800;
+      letter-spacing:.12em;
+      font-size:12px;
+      color:var(--brand);
+      background:#fff;
+      border:1px solid rgba(244,168,197,.7);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+    h1{
+      margin:0;
+      font-size:24px;
+      letter-spacing:-.02em;
+    }
+    .sub{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      margin-top:14px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(244,168,197,.55);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:16px;
+      backdrop-filter: blur(8px);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:16px;
+      letter-spacing:-.01em;
+    }
+    label{
+      display:block;
+      font-size:13px;
+      color:#444;
+      margin:12px 0 6px;
+      font-weight:600;
+    }
+    input[type="file"], input[type="range"]{
+      width:100%;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.5;
+    }
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:14px;
+    }
+    .btn{
+      border:0;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:800;
+      cursor:pointer;
+      transition:transform .06s ease, filter .15s ease;
+      text-decoration:none;
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:10px;
+      user-select:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{
+      color:white;
+      background: linear-gradient(90deg, var(--brand), var(--brand2));
+      box-shadow: 0 12px 26px rgba(232,75,135,.25);
+    }
+    .btn-ghost{
+      color:var(--brand);
+      background:#fff;
+      border:1px solid rgba(244,168,197,.8);
+    }
+    .btn-wide{flex:1; min-width:220px;}
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .previewWrap{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      .previewWrap{grid-template-columns:1fr}
+    }
+    .preview{
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+      border:1px dashed rgba(244,168,197,.9);
+      min-height:220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .preview .tag{
+      position:absolute;
+      top:10px; left:10px;
+      font-size:12px;
+      font-weight:900;
+      color:var(--brand);
+      background:#fff;
+      border:1px solid rgba(244,168,197,.7);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+    canvas, img{
+      max-width:100%;
+      max-height:360px;
+      display:block;
+    }
+
+    .products{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .pItem{
+      display:flex; gap:12px; align-items:center;
+      background:#fff;
+      border:1px solid rgba(244,168,197,.6);
+      border-radius:16px;
+      padding:10px;
+      text-decoration:none;
+      color:inherit;
+      transition: transform .06s ease, box-shadow .15s ease;
+    }
+    .pItem:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(232,75,135,.12);
+    }
+    .thumb{
+      width:64px;height:64px;border-radius:14px;flex:0 0 auto;
+      border:1px solid rgba(244,168,197,.55);
+      overflow:hidden;background:#fff;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .pMeta{min-width:0}
+    .pTitle{
+      font-weight:900;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin:0;
+    }
+    .pDesc{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .footerNote{
+      margin-top:14px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .divider{height:1px;background:rgba(244,168,197,.45);margin:12px 0}
+  </style>
 </head>
+
 <body>
-  <main class="layout">
+  <div class="wrap">
     <section class="hero">
-      <p class="brand">ToutdamPET</p>
-      <h1>뚜담펫 반려동물 옷 사이즈 측정</h1>
-      <p class="lead">무게와 실측값을 입력하면 강아지/고양이 의류 기준 사이즈를 빠르게 추천합니다.</p>
-    </section>
-
-    <section class="panel">
-      <h2>사이즈 측정 입력</h2>
-      <form id="sizeForm" class="size-form">
-        <label>
-          반려동물 종류
-          <select id="petType" required>
-            <option value="dog">강아지</option>
-            <option value="cat">고양이</option>
-          </select>
-        </label>
-
-        <label>
-          체중(kg)
-          <input id="weight" type="number" min="0.5" step="0.1" placeholder="예: 4.2" required />
-        </label>
-
-        <label>
-          등길이(cm)
-          <input id="backLength" type="number" min="10" step="0.5" placeholder="목 뒤부터 꼬리 시작점까지" required />
-        </label>
-
-        <label>
-          가슴둘레(cm)
-          <input id="chest" type="number" min="15" step="0.5" placeholder="앞다리 뒤 가장 두꺼운 둘레" required />
-        </label>
-
-        <label>
-          목둘레(cm)
-          <input id="neck" type="number" min="10" step="0.5" placeholder="목 가장 두꺼운 둘레" required />
-        </label>
-
-        <label>
-          핏 선호
-          <select id="fit">
-            <option value="regular">기본핏</option>
-            <option value="slim">슬림핏</option>
-            <option value="roomy">여유핏</option>
-          </select>
-        </label>
-
-        <button class="cta" type="submit">사이즈 추천 받기</button>
-      </form>
-    </section>
-
-    <section id="resultPanel" class="panel result-panel" aria-live="polite">
-      <h2>추천 결과</h2>
-      <p id="resultText" class="result-text">아직 측정 결과가 없습니다.</p>
-      <ul id="resultTips" class="tips"></ul>
-    </section>
-
-    <section class="panel chart-panel" aria-labelledby="sizeChartHeading">
-      <h2 id="sizeChartHeading">사이즈표 보기</h2>
-      <p id="sizeChartAverageNotice" class="chart-average-notice"></p>
-      <div class="table-scroll">
-        <table id="sizeChartTable" class="size-chart-table">
-          <caption>강아지 옷 평균 사이즈표</caption>
-        </table>
+      <div class="brandline">
+        <span class="pill">TOUTDAMPET</span>
+        <span class="pill" style="letter-spacing:.02em;font-weight:800;color:#a03a65">뚜담펫 toutdampet</span>
       </div>
-      <button id="toggleChartImage" class="toggle-image-btn" type="button" aria-expanded="false" aria-controls="sizeChartImageWrap">
-        이미지로 보기
-      </button>
-      <div id="sizeChartImageWrap" class="chart-image-wrap" hidden>
-        <img id="sizeChartImage" src="" alt="강아지 옷 사이즈표(평균값)" loading="lazy" />
-      </div>
-      <ul id="sizeChartNotices" class="chart-notices"></ul>
+      <h1>우리 아이 연필 스케치 만들기</h1>
+      <p class="sub">
+        사진을 넣으면 브라우저에서 바로 “연필 스케치” 느낌으로 변환해줘요. (업로드된 이미지는 서버로 전송되지 않아요)
+      </p>
     </section>
 
-    <section class="panel guide">
-      <h2>측정 가이드</h2>
-      <p>1) 줄자를 너무 조이지 말고 손가락 한 마디 여유를 두세요.</p>
-      <p>2) 털이 길거나 근육량이 높은 아이는 한 치수 크게 선택하세요.</p>
-      <p>3) 신축성 없는 원단은 가슴둘레 기준으로 선택하는 것이 안전합니다.</p>
-    </section>
-  </main>
+    <div class="grid">
+      <!-- 왼쪽: 스케치 툴 -->
+      <section class="card">
+        <h2>스케치 변환</h2>
 
-  <script defer type="text/javascript" src="/sizeChartData.js"></script>
-  <script defer type="text/javascript" src="/main.js"></script>
+        <label for="file">아이 사진 업로드</label>
+        <input id="file" type="file" accept="image/*" />
+
+        <div class="row">
+          <div style="flex:1;min-width:220px">
+            <label for="strength">스케치 강도 <span id="strengthVal" style="color:var(--brand);font-weight:900">70</span></label>
+            <input id="strength" type="range" min="0" max="100" value="70" />
+            <div class="hint">강도를 올리면 더 “연필선” 느낌이 강해지고, 낮추면 부드러워져요.</div>
+          </div>
+          <div style="flex:1;min-width:220px">
+            <label for="contrast">대비 <span id="contrastVal" style="color:var(--brand);font-weight:900">18</span></label>
+            <input id="contrast" type="range" min="0" max="40" value="18" />
+            <div class="hint">대비를 올리면 선이 또렷해져요.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="make" class="btn btn-primary btn-wide">연필 스케치 만들기</button>
+          <button id="download" class="btn btn-ghost" disabled>결과 다운로드</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="previewWrap">
+          <div class="preview">
+            <div class="tag">원본</div>
+            <img id="origImg" alt="업로드한 원본 이미지 미리보기" style="display:none" />
+            <div id="origEmpty" class="hint" style="padding:18px;text-align:center">
+              아직 사진이 없어요.<br/>우리 아이 사진을 업로드해 주세요.
+            </div>
+          </div>
+
+          <div class="preview">
+            <div class="tag">스케치</div>
+            <canvas id="out" width="900" height="700" style="display:none"></canvas>
+            <div id="outEmpty" class="hint" style="padding:18px;text-align:center">
+              변환 버튼을 누르면 스케치가 여기 표시돼요.
+            </div>
+          </div>
+        </div>
+
+        <div class="footerNote">
+          <strong>TIP</strong> 배경이 복잡한 사진보다, 얼굴/몸이 잘 보이는 사진이 스케치가 더 예쁘게 나와요.
+        </div>
+      </section>
+
+      <!-- 오른쪽: 브랜드/상품 -->
+      <aside class="card">
+        <h2>뚜담펫 추천</h2>
+        <a id="smartstoreBtn" class="btn btn-primary" href="#" target="_blank" rel="noopener">
+          스마트스토어 바로가기
+        </a>
+        <div class="mini">버튼/상품은 아래 데이터만 바꾸면 바로 적용돼요.</div>
+
+        <div class="divider"></div>
+
+        <h2 style="margin-top:0">요즘 잘나가요 (TOP 5)</h2>
+        <div id="products" class="products"></div>
+
+        <div class="footerNote">
+          * 이 페이지는 홍보/체험용 툴입니다. 결과 이미지는 기기/브라우저에 따라 약간 다를 수 있어요.
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * 1) 여기만 수정하면 됨
+     ***********************/
+    const SMARTSTORE_URL = "https://smartstore.naver.com/yourstore"; // TODO: 실제 스마트스토어 링크로 변경
+
+    const TOP_PRODUCTS = [
+      {
+        title: "베스트 상품 1",
+        desc: "한 줄 설명을 넣어주세요",
+        url: "https://smartstore.naver.com/yourstore/products/0000001",
+        img: "https://via.placeholder.com/200x200.png?text=Product+1"
+      },
+      {
+        title: "베스트 상품 2",
+        desc: "한 줄 설명을 넣어주세요",
+        url: "https://smartstore.naver.com/yourstore/products/0000002",
+        img: "https://via.placeholder.com/200x200.png?text=Product+2"
+      },
+      {
+        title: "베스트 상품 3",
+        desc: "한 줄 설명을 넣어주세요",
+        url: "https://smartstore.naver.com/yourstore/products/0000003",
+        img: "https://via.placeholder.com/200x200.png?text=Product+3"
+      },
+      {
+        title: "베스트 상품 4",
+        desc: "한 줄 설명을 넣어주세요",
+        url: "https://smartstore.naver.com/yourstore/products/0000004",
+        img: "https://via.placeholder.com/200x200.png?text=Product+4"
+      },
+      {
+        title: "베스트 상품 5",
+        desc: "한 줄 설명을 넣어주세요",
+        url: "https://smartstore.naver.com/yourstore/products/0000005",
+        img: "https://via.placeholder.com/200x200.png?text=Product+5"
+      }
+    ];
+
+    /***********************
+     * 2) UI 렌더링
+     ***********************/
+    const $ = (s) => document.querySelector(s);
+
+    $("#smartstoreBtn").href = SMARTSTORE_URL;
+
+    const productsEl = $("#products");
+    productsEl.innerHTML = TOP_PRODUCTS.map(p => `
+      <a class="pItem" href="${p.url}" target="_blank" rel="noopener">
+        <div class="thumb"><img src="${p.img}" alt="${escapeHtml(p.title)}" loading="lazy"></div>
+        <div class="pMeta">
+          <p class="pTitle">${escapeHtml(p.title)}</p>
+          <p class="pDesc">${escapeHtml(p.desc)}</p>
+        </div>
+      </a>
+    `).join("");
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    /***********************
+     * 3) 스케치 변환(브라우저 Canvas)
+     *    - Pencil sketch 고전 방식:
+     *      grayscale -> invert -> blur -> color dodge
+     *    - strength/contrast로 결과 조절
+     ***********************/
+    const fileEl = $("#file");
+    const origImgEl = $("#origImg");
+    const origEmptyEl = $("#origEmpty");
+    const outCanvas = $("#out");
+    const outEmptyEl = $("#outEmpty");
+    const makeBtn = $("#make");
+    const dlBtn = $("#download");
+
+    const strengthEl = $("#strength");
+    const contrastEl = $("#contrast");
+    const strengthVal = $("#strengthVal");
+    const contrastVal = $("#contrastVal");
+
+    strengthEl.addEventListener("input", () => strengthVal.textContent = strengthEl.value);
+    contrastEl.addEventListener("input", () => contrastVal.textContent = contrastEl.value);
+
+    let loadedImage = null;
+
+    fileEl.addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if(!f) return;
+
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => {
+        loadedImage = img;
+        origImgEl.src = url;
+        origImgEl.style.display = "block";
+        origEmptyEl.style.display = "none";
+        dlBtn.disabled = true;
+
+        outCanvas.style.display = "none";
+        outEmptyEl.style.display = "block";
+      };
+      img.onerror = () => {
+        loadedImage = null;
+        alert("이미지를 불러오지 못했어요. 다른 파일로 시도해 주세요.");
+      };
+      img.src = url;
+    });
+
+    makeBtn.addEventListener("click", async () => {
+      if(!loadedImage){
+        alert("먼저 사진을 업로드해 주세요!");
+        return;
+      }
+      makeBtn.disabled = true;
+      makeBtn.textContent = "변환 중…";
+
+      try{
+        const strength = Number(strengthEl.value); // 0~100
+        const contrast = Number(contrastEl.value); // 0~40
+        await renderSketch(loadedImage, outCanvas, { strength, contrast });
+
+        outCanvas.style.display = "block";
+        outEmptyEl.style.display = "none";
+        dlBtn.disabled = false;
+      } finally {
+        makeBtn.disabled = false;
+        makeBtn.textContent = "연필 스케치 만들기";
+      }
+    });
+
+    dlBtn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.download = "toutdampet-pencil-sketch.png";
+      a.href = outCanvas.toDataURL("image/png");
+      a.click();
+    });
+
+    async function renderSketch(img, canvas, opts){
+      const { strength, contrast } = opts;
+
+      // 캔버스 크기: 너무 큰 이미지는 적당히 축소
+      const maxW = 1400;
+      const scale = Math.min(1, maxW / img.naturalWidth);
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+
+      canvas.width = w;
+      canvas.height = h;
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.clearRect(0,0,w,h);
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const src = ctx.getImageData(0,0,w,h);
+      const gray = toGrayscale(src);
+      const inv = invert(gray);
+
+      // blur radius는 strength에 연동 (더 강하면 더 “스케치”)
+      const radius = Math.max(1, Math.round(1 + strength / 10)); // 1~11 정도
+      const blurred = boxBlur(inv, w, h, radius);
+
+      // color dodge: result = gray / (255 - blurred)
+      const dodged = colorDodge(gray, blurred);
+
+      // 대비 조절
+      const contrasted = applyContrast(dodged, w, h, contrast);
+
+      // 약간의 종이결 느낌(아주 미세한 노이즈)
+      const finalImg = addPaperNoise(contrasted, w, h, 6);
+
+      ctx.putImageData(finalImg, 0, 0);
+    }
+
+    function toGrayscale(imageData){
+      const d = imageData.data;
+      const out = new Uint8ClampedArray(d.length);
+      for(let i=0;i<d.length;i+=4){
+        const r = d[i], g = d[i+1], b = d[i+2];
+        const y = (0.299*r + 0.587*g + 0.114*b) | 0;
+        out[i]=out[i+1]=out[i+2]=y;
+        out[i+3]=255;
+      }
+      return out;
+    }
+
+    function invert(gray){
+      const out = new Uint8ClampedArray(gray.length);
+      for(let i=0;i<gray.length;i+=4){
+        const v = gray[i];
+        const iv = 255 - v;
+        out[i]=out[i+1]=out[i+2]=iv;
+        out[i+3]=255;
+      }
+      return out;
+    }
+
+    // 빠른 박스 블러(반복 1회). radius가 커도 무난하게 동작
+    function boxBlur(rgba, w, h, radius){
+      const out = new Uint8ClampedArray(rgba.length);
+      const tmp = new Uint32Array(w*h);
+
+      // 1) 가로 블러 (단일 채널이므로 r만 사용)
+      for(let y=0;y<h;y++){
+        let sum = 0;
+        const row = y*w;
+
+        for(let x=-radius; x<=radius; x++){
+          const xx = clamp(x, 0, w-1);
+          sum += rgba[(row+xx)*4];
+        }
+
+        for(let x=0;x<w;x++){
+          tmp[row+x] = sum;
+
+          const xOut = x - radius;
+          const xIn  = x + radius + 1;
+          if(xOut >= 0) sum -= rgba[(row+xOut)*4];
+          if(xIn < w)  sum += rgba[(row+xIn)*4];
+          else sum += rgba[(row+w-1)*4]; // edge replicate
+        }
+      }
+
+      // 2) 세로 블러
+      for(let x=0;x<w;x++){
+        let sum = 0;
+        for(let y=-radius; y<=radius; y++){
+          const yy = clamp(y, 0, h-1);
+          sum += tmp[yy*w + x];
+        }
+
+        for(let y=0;y<h;y++){
+          const v = (sum / (radius*2+1) / (radius*2+1)) | 0;
+          const i = (y*w + x)*4;
+          out[i]=out[i+1]=out[i+2]=clamp(v,0,255);
+          out[i+3]=255;
+
+          const yOut = y - radius;
+          const yIn  = y + radius + 1;
+          if(yOut >= 0) sum -= tmp[yOut*w + x];
+          if(yIn < h)  sum += tmp[yIn*w + x];
+          else sum += tmp[(h-1)*w + x];
+        }
+      }
+      return out;
+    }
+
+    function colorDodge(gray, blurredInv){
+      const out = new Uint8ClampedArray(gray.length);
+      for(let i=0;i<gray.length;i+=4){
+        const g = gray[i];
+        const b = blurredInv[i];
+        // dodge: g * 255 / (255 - b)
+        const denom = Math.max(1, 255 - b);
+        const v = Math.min(255, (g * 255) / denom);
+        out[i]=out[i+1]=out[i+2]=v|0;
+        out[i+3]=255;
+      }
+      return out;
+    }
+
+    function applyContrast(rgba, w, h, c){
+      // c: 0~40 정도 권장
+      const out = new ImageData(w,h);
+      const d = out.data;
+      const factor = (259 * (c + 255)) / (255 * (259 - c));
+      for(let i=0;i<rgba.length;i+=4){
+        const v = rgba[i];
+        const vv = clamp(factor * (v - 128) + 128, 0, 255) | 0;
+        d[i]=d[i+1]=d[i+2]=vv;
+        d[i+3]=255;
+      }
+      return out;
+    }
+
+    function addPaperNoise(imageData, w, h, amount){
+      const d = imageData.data;
+      // 아주 약한 노이즈로 종이결 느낌
+      for(let i=0;i<d.length;i+=4){
+        const n = (Math.random()*2-1) * amount; // -amount~amount
+        const v = clamp(d[i] + n, 0, 255) | 0;
+        d[i]=d[i+1]=d[i+2]=v;
+      }
+      return imageData;
+    }
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  </script>
 </body>
 </html>
