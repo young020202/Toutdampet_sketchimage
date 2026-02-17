@@ -228,6 +228,78 @@
       line-height:1.6;
     }
     .divider{height:1px;background:rgba(244,168,197,.45);margin:12px 0}
+
+    .fitCard{margin-top:16px}
+    .fitGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 700px){
+      .fitGrid{grid-template-columns:1fr}
+    }
+    .fitResult{
+      margin-top:12px;
+      background:#fff;
+      border:1px solid rgba(244,168,197,.7);
+      border-radius:14px;
+      padding:12px;
+    }
+    .fitResultText{
+      margin:0;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.5;
+      color:#5a1f3b;
+    }
+    .profilePanel{
+      margin-top:12px;
+      padding-top:8px;
+      border-top:1px dashed rgba(244,168,197,.7);
+    }
+    .loveCard{
+      margin-top:14px;
+      background:#fff;
+      border:1px solid rgba(244,168,197,.75);
+      border-radius:16px;
+      padding:16px;
+      display:grid;
+      justify-items:center;
+      gap:10px;
+    }
+    .heartFrame{
+      width:210px;
+      height:190px;
+      background: linear-gradient(145deg, #ff9dc4, #ff77ac);
+      padding:8px;
+      clip-path: polygon(50% 95%, 7% 60%, 7% 34%, 22% 17%, 36% 17%, 50% 31%, 64% 17%, 78% 17%, 93% 34%, 93% 60%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 12px 26px rgba(232,75,135,.25);
+    }
+    .heartFrame img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      clip-path: polygon(50% 95%, 7% 60%, 7% 34%, 22% 17%, 36% 17%, 50% 31%, 64% 17%, 78% 17%, 93% 34%, 93% 60%);
+      background:#fff;
+    }
+    .loveTitle{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+      color:#cf2f73;
+      text-align:center;
+    }
+    .loveMeta{
+      margin:0;
+      font-size:14px;
+      color:#5a1f3b;
+      text-align:center;
+      line-height:1.6;
+      word-break:keep-all;
+    }
   </style>
 </head>
 
@@ -313,6 +385,60 @@
         </div>
       </aside>
     </div>
+
+    <section class="card fitCard">
+      <h2>맞춤 사이즈 카드 만들기</h2>
+      <p class="mini">사이즈를 먼저 계산한 뒤, 아이 이름과 사진을 넣어 하트 카드로 만들 수 있어요.</p>
+
+      <form id="fitForm">
+        <div class="fitGrid">
+          <div>
+            <label for="fitWeight">체중(kg)</label>
+            <input id="fitWeight" type="number" min="0" step="0.1" placeholder="예: 4.2" required />
+          </div>
+          <div>
+            <label for="fitChest">가슴둘레(cm)</label>
+            <input id="fitChest" type="number" min="0" step="0.1" placeholder="예: 38" required />
+          </div>
+          <div>
+            <label for="fitNeck">목둘레(cm)</label>
+            <input id="fitNeck" type="number" min="0" step="0.1" placeholder="예: 21" required />
+          </div>
+          <div>
+            <label for="fitBack">등길이(cm)</label>
+            <input id="fitBack" type="number" min="0" step="0.1" placeholder="예: 30" required />
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" type="submit">맞춤 사이즈 계산</button>
+          <button id="openProfileBtn" class="btn btn-ghost" type="button" disabled>아이 이름/사진 넣기</button>
+        </div>
+      </form>
+
+      <div id="fitResult" class="fitResult" hidden>
+        <p id="fitResultText" class="fitResultText"></p>
+      </div>
+
+      <div id="profilePanel" class="profilePanel" hidden>
+        <label for="petNameInput">아이 이름</label>
+        <input id="petNameInput" type="text" placeholder="예: 뚜다미" />
+
+        <label for="petPhotoInput">아이 사진</label>
+        <input id="petPhotoInput" type="file" accept="image/*" />
+
+        <div class="row">
+          <button id="makeLoveCard" class="btn btn-primary" type="button">하트 카드 만들기</button>
+        </div>
+      </div>
+
+      <div id="loveCard" class="loveCard" hidden>
+        <div class="heartFrame">
+          <img id="lovePetPhoto" alt="하트 액자 속 아이 사진" />
+        </div>
+        <p id="loveTitle" class="loveTitle"></p>
+        <p id="loveMeta" class="loveMeta"></p>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -400,6 +526,23 @@
     const strengthVal = $("#strengthVal");
     const contrastVal = $("#contrastVal");
 
+    const fitForm = $("#fitForm");
+    const fitWeightEl = $("#fitWeight");
+    const fitChestEl = $("#fitChest");
+    const fitNeckEl = $("#fitNeck");
+    const fitBackEl = $("#fitBack");
+    const fitResult = $("#fitResult");
+    const fitResultText = $("#fitResultText");
+    const openProfileBtn = $("#openProfileBtn");
+    const profilePanel = $("#profilePanel");
+    const petNameInput = $("#petNameInput");
+    const petPhotoInput = $("#petPhotoInput");
+    const makeLoveCardBtn = $("#makeLoveCard");
+    const loveCard = $("#loveCard");
+    const lovePetPhoto = $("#lovePetPhoto");
+    const loveTitle = $("#loveTitle");
+    const loveMeta = $("#loveMeta");
+
     strengthEl.addEventListener("input", () => strengthVal.textContent = strengthEl.value);
     contrastEl.addEventListener("input", () => contrastVal.textContent = contrastEl.value);
 
@@ -455,6 +598,80 @@
       a.download = "toutdampet-pencil-sketch.png";
       a.href = outCanvas.toDataURL("image/png");
       a.click();
+    });
+
+    let latestFit = null;
+
+    function recommendSizeByWeight(weight){
+      if(weight > 0 && weight <= 2.5) return "S";
+      if(weight > 2.5 && weight <= 3.5) return "M";
+      if(weight > 3.5 && weight <= 5) return "L";
+      if(weight > 5 && weight <= 7.5) return "XL";
+      if(weight > 7.5 && weight <= 10) return "2XL";
+      return null;
+    }
+
+    function fmt(v){
+      const n = Number(v);
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    fitForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const weight = Number(fitWeightEl.value);
+      const chest = Number(fitChestEl.value);
+      const neck = Number(fitNeckEl.value);
+      const back = Number(fitBackEl.value);
+
+      if([weight, chest, neck, back].some(v => !Number.isFinite(v) || v <= 0)){
+        alert("체중/가슴둘레/목둘레/등길이를 올바르게 입력해 주세요.");
+        return;
+      }
+
+      const size = recommendSizeByWeight(weight);
+      latestFit = { weight, chest, neck, back, size };
+
+      fitResult.hidden = false;
+      loveCard.hidden = true;
+      profilePanel.hidden = true;
+
+      if(!size){
+        fitResultText.textContent = `입력 기준 체중 ${fmt(weight)}kg는 표준 구간 밖이라 맞춤 사이즈가 애매할 수 있어요.`;
+        openProfileBtn.disabled = true;
+        return;
+      }
+
+      fitResultText.textContent = `추천 사이즈는 ${size} 입니다. 이름/사진 버튼을 눌러 하트 카드를 만들어 보세요.`;
+      openProfileBtn.disabled = false;
+    });
+
+    openProfileBtn.addEventListener("click", () => {
+      if(!latestFit || !latestFit.size) return;
+      profilePanel.hidden = false;
+      profilePanel.scrollIntoView({ behavior:"smooth", block:"nearest" });
+    });
+
+    makeLoveCardBtn.addEventListener("click", () => {
+      if(!latestFit || !latestFit.size){
+        alert("먼저 맞춤 사이즈를 계산해 주세요.");
+        return;
+      }
+
+      const photoFile = petPhotoInput.files?.[0];
+      if(!photoFile){
+        alert("아이 사진을 먼저 넣어주세요.");
+        return;
+      }
+
+      const name = (petNameInput.value || "").trim() || "아이이름";
+      const photoUrl = URL.createObjectURL(photoFile);
+
+      lovePetPhoto.src = photoUrl;
+      loveTitle.textContent = `사랑하는 뚜다미, ${name}`;
+      loveMeta.textContent = `${fmt(latestFit.weight)}kg/가슴둘레${fmt(latestFit.chest)}cm/목둘레${fmt(latestFit.neck)}cm/등길이${fmt(latestFit.back)}cm/${latestFit.size}사이즈 착용`;
+      loveCard.hidden = false;
+      loveCard.scrollIntoView({ behavior:"smooth", block:"nearest" });
     });
 
     async function renderSketch(img, canvas, opts){
